@@ -86,7 +86,7 @@ class MapTests {
                 .go(Direction.Right, 4)
                 .go(Direction.Down, 5)
 
-        val actual = derivePath(map, walk)
+        val actual = extractTiles(map, walk)
 
         Assertions.assertEquals("@-G-O-+|+-+|O||+-O-N-+|I|+-+|+-I-+|ES|x", actual)
     }
@@ -117,7 +117,7 @@ class MapTests {
                 .go(Direction.Right, 4)
                 .go(Direction.Down, 5)
 
-        val actual = deriveLetters(map, walk)
+        val actual = extractLetters(map, walk)
 
         Assertions.assertEquals("GOONIES", actual)
     }

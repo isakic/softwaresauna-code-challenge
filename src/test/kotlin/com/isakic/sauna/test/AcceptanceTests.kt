@@ -10,11 +10,12 @@ class AcceptanceTests {
     @Test
     fun `Map 1 - a basic example`() {
         val input = """
-                       @---A---+
-                               |
-                       x-B-+   C
-                           |   |
-                           +---+""".trimIndent()
+            @---A---+
+                    |
+            x-B-+   C
+                |   |
+                +---+
+            """.trimIndent()
 
         val expectedOutput = Output(
                 "ACB",
@@ -28,13 +29,14 @@ class AcceptanceTests {
     @Test
     fun `Map 2 - go straight through intersections`() {
         val input = """
-                       @
-                       | +-C--+
-                       A |    |
-                       +---B--+
-                         |      x
-                         |      |
-                         +---D--+""".trimIndent()
+            @
+            | +-C--+
+            A |    |
+            +---B--+
+              |      x
+              |      |
+              +---D--+
+            """.trimIndent()
 
         val expectedOutput = Output(
                 "ABCD",
@@ -48,11 +50,12 @@ class AcceptanceTests {
     @Test
     fun `Map 3 - letters may be found on turns`() {
         val input = """
-                       @---A---+
-                               |
-                       x-B-+   |
-                           |   |
-                           +---C""".trimIndent()
+            @---A---+
+                    |
+            x-B-+   |
+                |   |
+                +---C
+            """.trimIndent()
 
         val expectedOutput = Output(
                 "ACB",
@@ -66,14 +69,15 @@ class AcceptanceTests {
     @Test
     fun `Map 4 - do not collect a letter from the same location twice`() {
         val input = """
-                           +-O-N-+
-                           |     |
-                           |   +-I-+
-                       @-G-O-+ | | |
-                           | | +-+ E
-                           +-+     S
-                                   |
-                                   x""".trimIndent()
+                +-O-N-+
+                |     |
+                |   +-I-+
+            @-G-O-+ | | |
+                | | +-+ E
+                +-+     S
+                        |
+                        x
+            """.trimIndent()
 
         val expectedOutput = Output(
                 "GOONIES",
@@ -87,10 +91,11 @@ class AcceptanceTests {
     @Test
     fun `Map 5 - keep direction, even in a compact space`() {
         val input = """
-                        +-L-+
-                        |  +A-+
-                       @B+ ++ H
-                        ++    x""".trimIndent()
+             +-L-+
+             |  +A-+
+            @B+ ++ H
+             ++    x
+            """.trimIndent()
 
         val expectedOutput = Output(
                 "BLAH",
@@ -104,11 +109,12 @@ class AcceptanceTests {
     @Test
     fun `Map 6 - no start`() {
         val input = """
-     -A---+
-          |
-  x-B-+   C
-      |   |
-      +---+""".trimIndent()
+               -A---+
+                    |
+            x-B-+   C
+                |   |
+                +---+
+            """.trimIndent()
 
         val actualOutput = solve(input)
 
@@ -118,11 +124,12 @@ class AcceptanceTests {
     @Test
     fun `Map 7 - no end`() {
         val input = """
-   @--A---+
-          |
-    B-+   C
-      |   |
-      +---+""".trimIndent()
+            @--A---+
+                   |
+             B-+   C
+               |   |
+               +---+
+            """.trimIndent()
 
         val actualOutput = solve(input)
 
@@ -130,13 +137,14 @@ class AcceptanceTests {
     }
 
     @Test
-    fun `Map 8 - no end`() {
+    fun `Map 8 - multiple starts`() {
         val input = """
-   @--A-@-+
-          |
-  x-B-+   C
-      |   |
-      +---+""".trimIndent()
+             @--A-@-+
+                    |
+            x-B-+   C
+                |   |
+                +---+
+            """.trimIndent()
 
         val actualOutput = solve(input)
 
@@ -146,11 +154,12 @@ class AcceptanceTests {
     @Test
     fun `Map 9 - multiple ends`() {
         val input = """
-   @--A---+
-          |
-  x-Bx+   C
-      |   |
-      +---+""".trimIndent()
+             @--A---+
+                    |
+            x-Bx+   C
+                |   |
+                +---+
+            """.trimIndent()
 
         val actualOutput = solve(input)
 
@@ -160,13 +169,14 @@ class AcceptanceTests {
     @Test
     fun `Map 10 - T forks`() {
         val input = """
-        x-B
-          |
-   @--A---+
-          |
-     x+   C
-      |   |
-      +---+""".trimIndent()
+                 x-B
+                   |
+            @--A---+
+                   |
+              x+   C
+               |   |
+               +---+
+            """.trimIndent()
 
         val actualOutput = solve(input)
 
@@ -176,10 +186,11 @@ class AcceptanceTests {
     @Test
     fun `Map 11 - broken path`() {
         val input = """
-   @--A-+
-        |
-         
-        B-x""".trimIndent()
+            @--A-+
+                 |
+                  
+                 B-x
+            """.trimIndent()
 
         val actualOutput = solve(input)
 
@@ -189,7 +200,8 @@ class AcceptanceTests {
     @Test
     fun `Map 12 - multiple starting paths`() {
         val input = """
-  -B-@-A-x""".trimIndent()
+            -B-@-A-x
+            """.trimIndent()
 
         val actualOutput = solve(input)
 
@@ -199,7 +211,8 @@ class AcceptanceTests {
     @Test
     fun `Map 13 - fake turn`() {
         val input = """
-@-A-+-B-x""".trimIndent()
+            @-A-+-B-x
+            """.trimIndent()
 
         val actualOutput = solve(input)
 
