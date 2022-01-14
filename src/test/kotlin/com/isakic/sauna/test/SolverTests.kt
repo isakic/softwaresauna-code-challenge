@@ -15,6 +15,9 @@ internal class SolverTests {
             .go(Direction.Up)
 
         Assertions.assertFalse(currentTileAlreadyVisited(path))
-        Assertions.assertTrue(currentTileAlreadyVisited(path.go(Direction.Up)))
+
+        val updatedPath = path.go(Direction.Up)
+
+        Assertions.assertTrue(currentTileAlreadyVisited(updatedPath))
     }
 }

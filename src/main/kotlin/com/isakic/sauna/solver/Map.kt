@@ -1,7 +1,5 @@
 package com.isakic.sauna.solver
 
-const val startTile = '@'
-
 class Map(input: String) {
     private val rows: List<String>
     val startPosition: Position
@@ -20,4 +18,8 @@ class Map(input: String) {
 
     operator fun get(row: Int, col: Int) = rows.getOrNull(row)?.getOrNull(col) ?: ' '
     operator fun get(position: Position) = this[position.row, position.col]
+
+    companion object {
+        const val startTile = '@'
+    }
 }

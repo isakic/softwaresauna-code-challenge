@@ -32,32 +32,22 @@ fun start(map: Map): Path {
 }
 
 fun processHorizontalTile(map: Map, path: Path, currentDirection: Direction): Path {
-    return if (currentDirection.isHorizontal || currentDirection.isVertical && currentTileAlreadyVisited(path)) {
+    return if (currentDirection.isHorizontal || currentTileAlreadyVisited(path)) {
         parsePathInDirection(map, path, currentDirection)
     } else InvalidPath
 }
 
 fun processVerticalTile(map: Map, path: Path, currentDirection: Direction): Path {
-    return if (currentDirection.isVertical || currentDirection.isHorizontal && currentTileAlreadyVisited(path)) {
+    return if (currentDirection.isVertical || currentTileAlreadyVisited(path)) {
         parsePathInDirection(map, path, currentDirection)
     } else InvalidPath
 }
 
 fun processCornerTile(map: Map, path: Path, currentDirection: Direction): Path {
-    val pathThroughCornerTile = parsePathInDirection(map, path, currentDirection)
-    return if (pathThroughCornerTile.isSomePath) {
-        InvalidPath
-    } else if (currentDirection.isHorizontal) {
-        ensureSinglePathExists(
-            parsePathInDirection(map, path, Direction.Up),
-            parsePathInDirection(map, path, Direction.Down)
-        )
-    } else if (currentDirection.isVertical) {
-        ensureSinglePathExists(
-            parsePathInDirection(map, path, Direction.Left),
-            parsePathInDirection(map, path, Direction.Right)
-        )
-    } else InvalidPath
+    val allPaths = currentDirection
+        .orthogonal
+        .map { parsePathInDirection(map, path, it) }
+    return ensureSinglePathExists(allPaths)
 }
 
 /**

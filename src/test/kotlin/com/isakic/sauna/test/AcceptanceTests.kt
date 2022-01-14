@@ -4,6 +4,7 @@ import com.isakic.sauna.solver.Output
 import com.isakic.sauna.solver.solve
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import kotlin.test.Ignore
 
 class AcceptanceTests {
 
