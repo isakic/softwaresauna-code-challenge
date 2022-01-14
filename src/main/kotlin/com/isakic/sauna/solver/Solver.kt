@@ -1,17 +1,28 @@
 package com.isakic.sauna.solver
 
-data class Pos(
+/**
+ * Represents a unique position in the given [row] and [col] in an unbound 2D grid.
+ */
+data class Position(
     val row: Int,
-    val col: Int
+    val col: Int,
 ) {
-
-    fun go(dir: Dir) = dir.apply(this)
+    /**
+     * Returns the position directly next to it in the given direction.
+     */
+    fun go(direction: Direction) = direction.apply(this)
 }
 
-enum class Dir(
+/**
+ * Enumeration of all orthogonal vectors of movement in a 2D grid.
+ * @param dRow component of the vector of displacement along y-axis.
+ * @param dCol component of the vector of displacement along x-axis.
+ * @param isHorizontal `true` if the vector is parallel with x-axis.
+ */
+enum class Direction(
     private val dRow: Int,
     private val dCol: Int,
-    val isHorizontal: Boolean
+    val isHorizontal: Boolean,
 ) {
 
     Up(-1, 0, false),
@@ -19,8 +30,14 @@ enum class Dir(
     Right(0, 1, true),
     Down(1, 0, false);
 
+    /**
+     * `true` if the vector is parallel with y-axis.
+     */
     val isVertical get() = !isHorizontal
 
+    /**
+     * Gets the direction along the same axis with the opposite value
+     */
     val opposite
         get() = when (this) {
             Up -> Down
@@ -29,157 +46,163 @@ enum class Dir(
             Down -> Up
         }
 
-    fun apply(from: Pos) = Pos(from.row + dRow, from.col + dCol)
+    /**
+     * Returns the position directly next to the given position in this direction.
+     */
+    fun apply(from: Position) = Position(from.row + dRow, from.col + dCol)
 }
 
-fun from(pos: Pos): List<Pos> {
-    return listOf(pos)
-}
-
-fun List<Pos>.go(dir: Dir, distance: Int = 1): List<Pos> {
+/**
+ * Extends the path by appending the next tile on the map moving by moving one step from the last tile of the path
+ * in given direction.
+ */
+fun Path.go(direction: Direction, distance: Int = 1): Path {
     if (distance < 0) throw IllegalArgumentException("Distance may not be a negative number!")
     return if (distance == 0) {
         this
     } else {
-        (this + this.last().go(dir)).go(dir, distance - 1)
+        (this + this.last().go(direction)).go(direction, distance - 1)
     }
 }
 
-typealias Result = List<Pos>
+typealias Path = List<Position>
 
-val InvalidPath = listOf<Pos>(Pos(-1, -1))
-val NoPath = listOf<Pos>()
+val InvalidPath: Path = listOf(Position(-1, -1))
+val NoPath: Path = listOf()
 
-fun ensureSingleValidPath(paths: List<Result>): Result  {
+fun isValid(path: Path) = path != NoPath && path != InvalidPath
+
+fun ensureSingleValidPath(vararg paths: Path): Path {
     val allPaths = paths.filter { it != NoPath }
     if (allPaths.isEmpty()) return NoPath
     if (allPaths.count() > 1) return InvalidPath
     return allPaths.first()
 }
 
-fun currentTileAlreadyVisited(path: List<Pos>) = path.count { it == path.last() } > 1
+fun currentTileAlreadyVisited(path: List<Position>) = path.count { it == path.last() } > 1
 
-fun processNextTile(map: Map, path: List<Pos>, currentDir: Dir): Result {
-    val nextTile = map[path.last().go(currentDir)]
+fun processNextTileInDirection(map: Map, path: List<Position>, currentDirection: Direction): Path {
+    val nextTile = map[path.last().go(currentDirection)]
     return when {
-        nextTile == '-' -> processHorizontalTile(map, path.go(currentDir), currentDir)
-        nextTile == '|' -> processVerticalTile(map, path.go(currentDir), currentDir)
-        nextTile == '+' -> processCornerTile(map, path.go(currentDir), currentDir)
-        nextTile == 'x' -> processEndTile(map, path.go(currentDir), currentDir)
-        nextTile.isUpperCase() -> processLetterTile(map, path.go(currentDir), currentDir)
-        else -> NoPath
+        nextTile == '-' -> processHorizontalTile(map, path.go(currentDirection), currentDirection)
+        nextTile == '|' -> processVerticalTile(map, path.go(currentDirection), currentDirection)
+        nextTile == '+' -> processCornerTile(map, path.go(currentDirection), currentDirection)
+        nextTile == 'x' -> processEndTile(map, path.go(currentDirection), currentDirection)
+        nextTile.isUpperCase() -> processLetterTile(map, path.go(currentDirection), currentDirection)
+        nextTile == ' ' -> NoPath
+        else -> InvalidPath
     }
 }
 
-fun start(map: Map): Result {
-    val allPaths = Dir.values().toList().map { processNextTile(map, listOf(map.startPos), it) }.filter { it != NoPath }
-    if (allPaths.isEmpty()) return NoPath
-    if (allPaths.count() > 1) return InvalidPath
-   return allPaths.first()
+fun start(map: Map): Path {
+    val allPaths = Direction.values().map { processNextTileInDirection(map, listOf(map.startPosition), it) }.toTypedArray()
+    return ensureSingleValidPath(*allPaths)
 }
 
-fun processHorizontalTile(map: Map, path: List<Pos>, currentDir: Dir): Result {
-    return if (currentDir.isHorizontal or (currentTileAlreadyVisited(path) and currentDir.isVertical)) {
-        processNextTile(map, path, currentDir)
+fun processHorizontalTile(map: Map, path: List<Position>, currentDirection: Direction): Path {
+    return if (currentDirection.isHorizontal || (currentTileAlreadyVisited(path) && currentDirection.isVertical)) {
+        processNextTileInDirection(map, path, currentDirection)
     } else InvalidPath
 }
 
-fun processVerticalTile(map: Map, path: List<Pos>, currentDir: Dir): Result {
-    return if (currentDir.isVertical or (currentTileAlreadyVisited(path) and currentDir.isHorizontal)) {
-        processNextTile(map, path, currentDir)
+fun processVerticalTile(map: Map, path: List<Position>, currentDirection: Direction): Path {
+    return if (currentDirection.isVertical || (currentTileAlreadyVisited(path) && currentDirection.isHorizontal)) {
+        processNextTileInDirection(map, path, currentDirection)
     } else InvalidPath
 }
 
-fun processCornerTile(map: Map, path: List<Pos>, currentDir: Dir): Result {
-    val continuationPath = processNextTile(map, path, currentDir)
+fun processCornerTile(map: Map, path: List<Position>, currentDirection: Direction): Path {
+    val continuationPath = processNextTileInDirection(map, path, currentDirection)
     return if (continuationPath != NoPath) {
         InvalidPath
-    } else if (currentDir.isHorizontal) {
+    } else if (currentDirection.isHorizontal) {
         ensureSingleValidPath(
-            listOf(
-                processNextTile(map, path, Dir.Up),
-                processNextTile(map, path, Dir.Down)
-            )
+                processNextTileInDirection(map, path, Direction.Up),
+                processNextTileInDirection(map, path, Direction.Down)
         )
-    } else if (currentDir.isVertical) {
+    } else if (currentDirection.isVertical) {
         ensureSingleValidPath(
-            listOf(
-                processNextTile(map, path, Dir.Left),
-                processNextTile(map, path, Dir.Right)
-            )
+                processNextTileInDirection(map, path, Direction.Left),
+                processNextTileInDirection(map, path, Direction.Right)
         )
     } else InvalidPath
 }
 
-fun processLetterTile(map: Map, path: List<Pos>, currentDir: Dir): Result {
-    val hPath = processHorizontalTile(map, path, currentDir)
+fun processLetterTile(map: Map, path: List<Position>, currentDirection: Direction): Path {
+    val hPath = processHorizontalTile(map, path, currentDirection)
 
-    return if (hPath != NoPath && hPath != InvalidPath) {
+    return if (isValid(hPath)) {
         hPath
     } else {
-        val vPath = processVerticalTile(map, path, currentDir)
+        val vPath = processVerticalTile(map, path, currentDirection)
 
-        if (vPath != NoPath && vPath != InvalidPath) {
+        if (isValid(vPath)) {
             vPath
         } else {
-            val cPath = processCornerTile(map, path, currentDir)
+            val cPath = processCornerTile(map, path, currentDirection)
 
-            if (cPath != NoPath && cPath != InvalidPath) {
-                cPath
-            } else {
-                InvalidPath
-            }
+            if (isValid(cPath)) cPath else InvalidPath
         }
     }
 }
 
-fun processEndTile(map: Map, path: List<Pos>, currentDir: Dir): Result {
-    val continuationPaths = Dir.values().toList()
-        .filter { it != currentDir.opposite }
-        .map { processNextTile(map, path, it) }
+fun processEndTile(map: Map, path: List<Position>, currentDirection: Direction): Path {
+    val continuationPaths = Direction.values().toList()
+        .filter { it != currentDirection.opposite }
+        .map { processNextTileInDirection(map, path, it) }
 
     return if (continuationPaths.all { it == NoPath }) path else InvalidPath
 }
 
-fun derivePath(map: Map, path: List<Pos>) = path.map { map[it] }.joinToString("")
+/**
+ * Returns a string containing all tile symbols visited by the given path around the map.
+ */
+fun derivePath(map: Map, path: List<Position>) = path.map { map[it] }.joinToString("")
 
-fun deriveLetters(map: Map, path: List<Pos>) = path.distinct()
+/**
+ * Returns a string of letters in order of visit on a given path around the map. Letters visited more than once are
+ * skipped after first visit.
+ */
+fun deriveLetters(map: Map, path: List<Position>) = path.distinct()
     .map { map[it] }
     .filter { it.isUpperCase() }
     .joinToString("")
 
 class Map(input: String) {
+    private val startTile = '@'
     private val rows: List<String>
-    val startPos: Pos
+    val startPosition: Position
 
     init {
-        input.count { it == '@' }.also {
-            if (it == 0) throw MissingStartTile()
-            if (it > 1) throw AmbiguousStartTile()
+        input.count { it == startTile }.also {
+            if (it != 1) throw Error("Map must have exactly one starting tile!")
         }
 
         rows = input.lines().also {
-            val row = it.indexOfFirst { row -> row.contains('@') }
-            val col = it[row].indexOf('@')
-            startPos = Pos(row, col)
+            val row = it.indexOfFirst { row -> row.contains(startTile) }
+            val col = it[row].indexOf(startTile)
+            startPosition = Position(row, col)
         }
     }
 
     operator fun get(row: Int, col: Int) = rows.getOrNull(row)?.getOrNull(col) ?: ' '
-    operator fun get(pos: Pos) = this[pos.row, pos.col]
-}
-
-fun solve(input: String): Output? {
-    val map = try {
-        Map(input)
-    } catch (error: Error) {
-        return null
-    }
-    val path = start(Map(input))
-    return if (path == NoPath || path == InvalidPath) null else Output(deriveLetters(map, path), derivePath(map, path))
+    operator fun get(position: Position) = this[position.row, position.col]
 }
 
 data class Output(
     val letters: String,
     val path: String,
 )
+
+fun solve(input: String): Output? {
+    return try {
+        val map = Map(input)
+        val path = start(Map(input))
+
+        if (isValid(path)) {
+            Output(deriveLetters(map, path), derivePath(map, path))
+        } else null
+    } catch (error: Error) {
+        null
+    }
+}

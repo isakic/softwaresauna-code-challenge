@@ -5,7 +5,7 @@ plugins {
     application
 }
 
-group = "me.ivansakic"
+group = "com.isakic"
 version = "1.0-SNAPSHOT"
 
 repositories {

@@ -16,7 +16,7 @@ class MapTests {
                            x---C""".trimIndent()
         val map = Map(input)
 
-        Assertions.assertEquals(Pos(2, 4), map.startPos)
+        Assertions.assertEquals(Position(2, 4), map.startPosition)
     }
 
 
@@ -39,23 +39,23 @@ class MapTests {
     @Test
     fun `Walk construction extension`() {
         val expected = listOf(
-                Pos(0, 0),
-                Pos(1, 0),
-                Pos(2, 0),
-                Pos(2, 1),
-                Pos(2, 2),
-                Pos(1, 2),
-                Pos(1, 1),
-                Pos(0, 1),
-                Pos(0, 0))
+                Position(0, 0),
+                Position(1, 0),
+                Position(2, 0),
+                Position(2, 1),
+                Position(2, 2),
+                Position(1, 2),
+                Position(1, 1),
+                Position(0, 1),
+                Position(0, 0))
 
-        val actual = from(Pos(0, 0))
-                .go(Dir.Right, 2)
-                .go(Dir.Down, 2)
-                .go(Dir.Left)
-                .go(Dir.Up)
-                .go(Dir.Left)
-                .go(Dir.Up)
+        val actual = listOf(Position(0, 0))
+                .go(Direction.Right, 2)
+                .go(Direction.Down, 2)
+                .go(Direction.Left)
+                .go(Direction.Up)
+                .go(Direction.Left)
+                .go(Direction.Up)
 
         Assertions.assertIterableEquals(expected, actual)
     }
@@ -74,17 +74,17 @@ class MapTests {
                     """.trimIndent()
         val map = Map(input)
 
-        val walk = from(Pos(3, 0))
-                .go(Dir.Right, 6)
-                .go(Dir.Down, 2)
-                .go(Dir.Left, 2)
-                .go(Dir.Up, 5)
-                .go(Dir.Right, 6)
-                .go(Dir.Down, 4)
-                .go(Dir.Left, 2)
-                .go(Dir.Up, 2)
-                .go(Dir.Right, 4)
-                .go(Dir.Down, 5)
+        val walk = listOf(Position(3, 0))
+                .go(Direction.Right, 6)
+                .go(Direction.Down, 2)
+                .go(Direction.Left, 2)
+                .go(Direction.Up, 5)
+                .go(Direction.Right, 6)
+                .go(Direction.Down, 4)
+                .go(Direction.Left, 2)
+                .go(Direction.Up, 2)
+                .go(Direction.Right, 4)
+                .go(Direction.Down, 5)
 
         val actual = derivePath(map, walk)
 
@@ -105,17 +105,17 @@ class MapTests {
                     """.trimIndent()
         val map = Map(input)
 
-        val walk = from(Pos(3, 0))
-                .go(Dir.Right, 6)
-                .go(Dir.Down, 2)
-                .go(Dir.Left, 2)
-                .go(Dir.Up, 5)
-                .go(Dir.Right, 6)
-                .go(Dir.Down, 4)
-                .go(Dir.Left, 2)
-                .go(Dir.Up, 2)
-                .go(Dir.Right, 4)
-                .go(Dir.Down, 5)
+        val walk = listOf(Position(3, 0))
+                .go(Direction.Right, 6)
+                .go(Direction.Down, 2)
+                .go(Direction.Left, 2)
+                .go(Direction.Up, 5)
+                .go(Direction.Right, 6)
+                .go(Direction.Down, 4)
+                .go(Direction.Left, 2)
+                .go(Direction.Up, 2)
+                .go(Direction.Right, 4)
+                .go(Direction.Down, 5)
 
         val actual = deriveLetters(map, walk)
 
