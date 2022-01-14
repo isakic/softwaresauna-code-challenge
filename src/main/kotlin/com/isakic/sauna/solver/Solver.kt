@@ -45,16 +45,17 @@ fun List<Pos>.go(dir: Dir, distance: Int = 1): List<Pos> {
     }
 }
 
-sealed class ResultDto {
-    class Success(public val path: List<Pos>)
-    class Failure(public val reason: String)
+typealias Result = List<Pos>
+
+val InvalidPath = listOf<Pos>(Pos(-1, -1))
+val NoPath = listOf<Pos>()
+
+fun ensureSingleValidPath(paths: List<Result>): Result  {
+    val allPaths = paths.filter { it != NoPath }
+    if (allPaths.isEmpty()) return NoPath
+    if (allPaths.count() > 1) return InvalidPath
+    return allPaths.first()
 }
-
-typealias Result = List<Pos>?
-
-fun ensureSinglePath(paths: List<Result>): Result = if (paths.count { it != null } == 1) {
-    paths.firstNotNullOf { it }
-} else null
 
 fun currentTileAlreadyVisited(path: List<Pos>) = path.count { it == path.last() } > 1
 
@@ -66,60 +67,78 @@ fun processNextTile(map: Map, path: List<Pos>, currentDir: Dir): Result {
         nextTile == '+' -> processCornerTile(map, path.go(currentDir), currentDir)
         nextTile == 'x' -> processEndTile(map, path.go(currentDir), currentDir)
         nextTile.isUpperCase() -> processLetterTile(map, path.go(currentDir), currentDir)
-        else -> null
+        else -> NoPath
     }
 }
 
 fun start(map: Map): Result {
-    val path = listOf(map.startPos)
-    return ensureSinglePath(Dir.values().toList().map { processNextTile(map, path, it) })
+    val allPaths = Dir.values().toList().map { processNextTile(map, listOf(map.startPos), it) }.filter { it != NoPath }
+    if (allPaths.isEmpty()) return NoPath
+    if (allPaths.count() > 1) return InvalidPath
+   return allPaths.first()
 }
 
 fun processHorizontalTile(map: Map, path: List<Pos>, currentDir: Dir): Result {
     return if (currentDir.isHorizontal or (currentTileAlreadyVisited(path) and currentDir.isVertical)) {
         processNextTile(map, path, currentDir)
-    } else null
+    } else InvalidPath
 }
 
 fun processVerticalTile(map: Map, path: List<Pos>, currentDir: Dir): Result {
     return if (currentDir.isVertical or (currentTileAlreadyVisited(path) and currentDir.isHorizontal)) {
         processNextTile(map, path, currentDir)
-    } else null
+    } else InvalidPath
 }
 
 fun processCornerTile(map: Map, path: List<Pos>, currentDir: Dir): Result {
     val continuationPath = processNextTile(map, path, currentDir)
-    return if (continuationPath != null) {
-        null
+    return if (continuationPath != NoPath) {
+        InvalidPath
     } else if (currentDir.isHorizontal) {
-        ensureSinglePath(
+        ensureSingleValidPath(
             listOf(
                 processNextTile(map, path, Dir.Up),
                 processNextTile(map, path, Dir.Down)
             )
         )
     } else if (currentDir.isVertical) {
-        ensureSinglePath(
+        ensureSingleValidPath(
             listOf(
                 processNextTile(map, path, Dir.Left),
                 processNextTile(map, path, Dir.Right)
             )
         )
-    } else null
+    } else InvalidPath
 }
 
 fun processLetterTile(map: Map, path: List<Pos>, currentDir: Dir): Result {
-    return processHorizontalTile(map, path, currentDir)
-        ?: processVerticalTile(map, path, currentDir)
-        ?: processCornerTile(map, path, currentDir)
+    val hPath = processHorizontalTile(map, path, currentDir)
+
+    return if (hPath != NoPath && hPath != InvalidPath) {
+        hPath
+    } else {
+        val vPath = processVerticalTile(map, path, currentDir)
+
+        if (vPath != NoPath && vPath != InvalidPath) {
+            vPath
+        } else {
+            val cPath = processCornerTile(map, path, currentDir)
+
+            if (cPath != NoPath && cPath != InvalidPath) {
+                cPath
+            } else {
+                InvalidPath
+            }
+        }
+    }
 }
 
 fun processEndTile(map: Map, path: List<Pos>, currentDir: Dir): Result {
     val continuationPaths = Dir.values().toList()
         .filter { it != currentDir.opposite }
-        .mapNotNull { processNextTile(map, path, it) }
+        .map { processNextTile(map, path, it) }
 
-    return if (continuationPaths.isEmpty()) path else null
+    return if (continuationPaths.all { it == NoPath }) path else InvalidPath
 }
 
 fun derivePath(map: Map, path: List<Pos>) = path.map { map[it] }.joinToString("")
@@ -157,7 +176,7 @@ fun solve(input: String): Output? {
         return null
     }
     val path = start(Map(input))
-    return if (path == null) null else Output(deriveLetters(map, path), derivePath(map, path))
+    return if (path == NoPath || path == InvalidPath) null else Output(deriveLetters(map, path), derivePath(map, path))
 }
 
 data class Output(
