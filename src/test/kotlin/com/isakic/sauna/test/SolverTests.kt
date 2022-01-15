@@ -7,6 +7,50 @@ import org.junit.jupiter.api.Test
 internal class SolverTests {
 
     @Test
+    fun `findStartPosition returns null if no start tile is present`() {
+        val input = """
+            -----+     
+                 |
+                 +---
+        """.trimIndent()
+        val map = Map(input)
+
+        val startPosition = findStartPosition(map)
+
+        Assertions.assertNull(startPosition)
+    }
+
+    @Test
+    fun `findStartPosition returns null if more than one start tile is present`() {
+        val input = """
+            @--+ @---+
+               |     |
+               +---x x
+        """.trimIndent()
+        val map = Map(input)
+
+        val startPosition = findStartPosition(map)
+
+        Assertions.assertNull(startPosition)
+    }
+
+    @Test
+    fun `findStartPosition returns the starting position`() {
+        val input = """
+            +---A---+
+            |       |
+            +---@   B
+                    |
+                x---C
+            """.trimIndent()
+        val map = Map(input)
+
+        val startPosition = findStartPosition(map)
+
+        Assertions.assertEquals(Position(2, 4), startPosition)
+    }
+
+    @Test
     fun `Current tile counts as visited if it appears in the path at least once before`() {
         val path = listOf(Position(0, 0))
             .go(Direction.Right, 2)
@@ -29,7 +73,7 @@ internal class SolverTests {
                 
         """.trimIndent()
 
-        val path = processHorizontalTile(Map(context, true), listOf(Position(1, 1)), Direction.Right)
+        val path = processHorizontalTile(Map(context), listOf(Position(1, 1)), Direction.Right)
 
         Assertions.assertTrue(path.isValid)
     }
@@ -42,7 +86,7 @@ internal class SolverTests {
              x  
         """.trimIndent()
 
-        val path = processHorizontalTile(Map(context, true), listOf(Position(1, 1), Position(1, 1)), Direction.Down)
+        val path = processHorizontalTile(Map(context), listOf(Position(1, 1), Position(1, 1)), Direction.Down)
 
         Assertions.assertTrue(path.isValid)
     }
@@ -51,12 +95,12 @@ internal class SolverTests {
     @Test
     fun `processVerticalTile supports simple path`() {
         val context = """
-             |   
+            -+   
              |
              x    
         """.trimIndent()
 
-        val path = processVerticalTile(Map(context, true), listOf(Position(1, 1)), Direction.Down)
+        val path = processVerticalTile(Map(context), listOf(Position(1, 1)), Direction.Down)
 
         Assertions.assertTrue(path.isValid)
     }
@@ -69,7 +113,7 @@ internal class SolverTests {
              | 
         """.trimIndent()
 
-        val path = processVerticalTile(Map(context, true), listOf(Position(1, 1), Position(1, 1)), Direction.Right)
+        val path = processVerticalTile(Map(context), listOf(Position(1, 1), Position(1, 1)), Direction.Right)
 
         Assertions.assertTrue(path.isValid)
     }
@@ -82,7 +126,7 @@ internal class SolverTests {
             
         """.trimIndent()
 
-        val path = processCornerTile(Map(context, true), listOf(Position(1, 1)), Direction.Right)
+        val path = processCornerTile(Map(context), listOf(Position(1, 1)), Direction.Right)
 
         Assertions.assertTrue(path.isValid)
     }
@@ -95,7 +139,7 @@ internal class SolverTests {
              
         """.trimIndent()
 
-        val path = processCornerTile(Map(context, true), listOf(Position(1, 1)), Direction.Down)
+        val path = processCornerTile(Map(context), listOf(Position(1, 1)), Direction.Down)
 
         Assertions.assertTrue(path.isValid)
     }

@@ -1,27 +1,12 @@
 package com.isakic.sauna.solver
 
 typealias Tile = Char
-const val StartTile: Tile = '@'
 
-class Map(input: String, ignoreMissingStartTile: Boolean = false) {
-    private val rows: List<String>
-    val startPosition: Position
+class Map(input: String) {
+    private val rows = input.lines()
 
-    init {
-        if (ignoreMissingStartTile) {
-            rows = input.lines()
-            startPosition = Position(0, 0)
-        } else {
-            input.count { it == StartTile }.also {
-                if (it != 1) throw Error("Map must have exactly one starting tile!")
-            }
-            rows = input.lines().also {
-                val row = it.indexOfFirst { row -> row.contains(StartTile) }
-                val col = it[row].indexOf(StartTile)
-                startPosition = Position(row, col)
-            }
-        }
-    }
+    val height = rows.size
+    val width = rows.maxOfOrNull { it.length } ?: 0
 
     operator fun get(row: Int, col: Int): Tile = rows.getOrNull(row)?.getOrNull(col) ?: ' '
 

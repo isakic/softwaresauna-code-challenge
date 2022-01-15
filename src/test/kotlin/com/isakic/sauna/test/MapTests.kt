@@ -7,20 +7,6 @@ import org.junit.jupiter.api.Test
 class MapTests {
 
     @Test
-    fun `Map finds the starting position`() {
-        val input = """
-                       +---A---+
-                       |       |
-                       +---@   B
-                               |
-                           x---C""".trimIndent()
-        val map = Map(input)
-
-        Assertions.assertEquals(Position(2, 4), map.startPosition)
-    }
-
-
-    @Test
     fun `Map treats out-of-bounds tiles as empty tiles`() {
         val input = """
                        @---A---+

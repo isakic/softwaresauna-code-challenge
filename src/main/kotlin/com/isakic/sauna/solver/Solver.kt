@@ -51,13 +51,35 @@ fun parsePathInDirection(map: Map, path: Path, currentDirection: Direction): Pat
 }
 
 /**
+ * Returns the [Position] of the start tile, represented by '@' symbol, if there is exactly one such tile on the map,
+ * `null` otherwise.
+ */
+fun findStartPosition(map: Map): Position? {
+    var position: Position? = null
+    for (row in 0 until map.height) {
+        for (col in 0 until map.width ) {
+            if (map[row, col] == '@') {
+                if (position != null) {
+                    return null
+                } else {
+                    position = Position(row, col)
+                }
+            }
+        }
+    }
+    return position
+}
+
+/**
  * Starts the parsing process by scanning for paths in all directions starting at the detected starting tile represented
  * by '@' symbol. It allows only one single valid path be present.
  *
- * Returns a valid [Path] to the end tile, [InvalidPath] otherwise.
+ * Returns a valid [Path] to the end tile, if such exists, [InvalidPath] otherwise.
  */
 fun start(map: Map): Path {
-    val startingPath: Path = listOf(map.startPosition)
+    val startPosition = findStartPosition(map) ?: return InvalidPath
+
+    val startingPath: Path = listOf(startPosition)
     val allPaths = Direction.all.map { parsePathInDirection(map, startingPath, it) }
     return ensureSinglePathExists(allPaths)
 }
