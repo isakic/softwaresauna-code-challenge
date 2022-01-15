@@ -14,10 +14,15 @@ internal class SolverTests {
             .go(Direction.Left)
             .go(Direction.Up)
 
-        Assertions.assertFalse(currentTileAlreadyVisited(path))
+        Assertions.assertFalse(revisitingCurrentPosition(path))
 
         val updatedPath = path.go(Direction.Up)
 
-        Assertions.assertTrue(currentTileAlreadyVisited(updatedPath))
+        Assertions.assertTrue(revisitingCurrentPosition(updatedPath))
+    }
+
+    @Test
+    fun `WIP`() {
+
     }
 }

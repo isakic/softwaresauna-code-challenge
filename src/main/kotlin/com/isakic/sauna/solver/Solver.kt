@@ -1,6 +1,15 @@
 package com.isakic.sauna.solver
 
-fun ensureSinglePathExists(paths: List<Path>) = ensureSinglePathExists(*paths.toTypedArray())
+/**
+ * Detects dead ends and path forks by inspecting [paths] discovered proceeding from a map tile.
+ *
+ * Returns a [Path] if there is a single continuation path, either valid or invalid, proceeding from this tile.
+ *
+ * Returns [InvalidPath] if a fork is detected at the current position (i.e. more than one continuing path),
+ * regardless of their validity.
+ *
+ * Returns [NoPath] if the current tile is a dead end.
+ */
 fun ensureSinglePathExists(vararg paths: Path): Path {
     val allPaths = paths.filter { it.isSomePath }
     if (allPaths.isEmpty()) return NoPath
@@ -8,11 +17,27 @@ fun ensureSinglePathExists(vararg paths: Path): Path {
     return allPaths.first()
 }
 
-fun currentTileAlreadyVisited(path: Path) = path.count { it == path.last() } > 1
+/**
+ * Detects dead ends and path forks by inspecting [paths] discovered proceeding from a map tile.
+ *
+ * Returns a [Path] if there is a single continuation path, either valid or invalid, proceeding from this tile.
+ *
+ * Returns [InvalidPath] if a fork is detected at the current position (i.e. more than one continuing path),
+ * regardless of their validity.
+ *
+ * Returns [NoPath] if the current tile is a dead end.
+ */
+fun ensureSinglePathExists(paths: List<Path>) = ensureSinglePathExists(*paths.toTypedArray())
 
+/**
+ * Performs a lookahead from the tail of the current [path] in the given [currentDirection] on the [map] and calls
+ * the appropriate tile handler.
+ *
+ * All illegal characters result in this function returning [InvalidPath].
+ */
 fun parsePathInDirection(map: Map, path: Path, currentDirection: Direction): Path {
     val newPath = path.go(currentDirection)
-    val nextTile = map[newPath.last()]
+    val nextTile = map[newPath.currentPosition]
 
     return when {
         nextTile.isUpperCase() -> processLetterTile(map, newPath, currentDirection)
@@ -32,13 +57,13 @@ fun start(map: Map): Path {
 }
 
 fun processHorizontalTile(map: Map, path: Path, currentDirection: Direction): Path {
-    return if (currentDirection.isHorizontal || currentTileAlreadyVisited(path)) {
+    return if (currentDirection.isHorizontal || path.isRevisitingCurrentPosition) {
         parsePathInDirection(map, path, currentDirection)
     } else InvalidPath
 }
 
 fun processVerticalTile(map: Map, path: Path, currentDirection: Direction): Path {
-    return if (currentDirection.isVertical || currentTileAlreadyVisited(path)) {
+    return if (currentDirection.isVertical || path.isRevisitingCurrentPosition) {
         parsePathInDirection(map, path, currentDirection)
     } else InvalidPath
 }
@@ -66,6 +91,13 @@ fun processLetterTile(map: Map, path: Path, currentDirection: Direction): Path {
     return InvalidPath
 }
 
+/**
+ * This function handles an encountered end tile. Returns the [Path] ending at this tile if the path doesn't continue
+ * beyond this tile in any direction apart from the incoming direction, [InvalidPath] otherwise.
+ *
+ * This is the only tile handler that can return a valid path, ensuring that the solver will always return a valid path
+ * one is present.
+ */
 fun processEndTile(map: Map, path: Path, currentDirection: Direction): Path {
     val continuationPaths = Direction.all
         .filter { it != currentDirection.opposite }
@@ -88,15 +120,17 @@ fun extractLetters(map: Map, path: Path) = path.distinct()
     .filter { it.isUpperCase() }
     .joinToString("")
 
-fun solve(input: String): Output? {
-    return try {
-        val map = Map(input)
-        val path = start(Map(input))
+/**
+ * Parses the map represented by the [input] string and returns a sequence of visited letters as well as visited tiles
+ * on a valid path from the start tile to the end tile as [Output]. Returns null if no valid path exists.
+ */
+fun solve(input: String) = try {
+    val map = Map(input)
+    val path = start(Map(input))
 
-        if (path.isValid) {
-            Output(extractLetters(map, path), extractTiles(map, path))
-        } else null
-    } catch (error: Error) {
-        null
-    }
+    if (path.isValid) {
+        Output(extractLetters(map, path), extractTiles(map, path))
+    } else null
+} catch (error: Error) {
+    null
 }
