@@ -1,5 +1,6 @@
 package com.isakic.sauna.test
 
+import com.isakic.sauna.solver.Output
 import com.isakic.sauna.solver.solve
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -70,5 +71,24 @@ class ExtraAcceptanceTests {
         val actualOutput = solve(input)
 
         Assertions.assertNull(actualOutput)
+    }
+
+    @Ignore
+    @Test
+    fun `Map 18 - Really tight paths`() {
+        val input = """
+            +-B-+
+            +-A+|
+             @-+|
+            x-C-+
+            """.trimIndent()
+
+        val actualOutput = solve(input)
+
+        val expectedOutput = Output(
+            "ABC",
+            "@-++A-++-B-+||+-C-x")
+
+        Assertions.assertEquals(expectedOutput, actualOutput)
     }
 }
