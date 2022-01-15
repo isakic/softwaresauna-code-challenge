@@ -12,7 +12,7 @@ internal class SolverTests {
             -----+     
                  |
                  +---
-        """.trimIndent()
+            """.trimIndent()
         val map = Map(input)
 
         val startPosition = findStartPosition(map)
@@ -26,7 +26,7 @@ internal class SolverTests {
             @--+ @---+
                |     |
                +---x x
-        """.trimIndent()
+            """.trimIndent()
         val map = Map(input)
 
         val startPosition = findStartPosition(map)
@@ -67,26 +67,24 @@ internal class SolverTests {
 
     @Test
     fun `processHorizontalTile supports simple path`() {
-        val context = """
-                 
+        val input = """
             --x
-                
-        """.trimIndent()
+            """.trimIndent()
 
-        val path = processHorizontalTile(Map(context), listOf(Position(1, 1)), Direction.Right)
+        val path = processHorizontalTile(Map(input), listOf(Position(0, 1)), Direction.Right)
 
         Assertions.assertTrue(path.isValid)
     }
 
     @Test
     fun `processHorizontalTile supports intersections`() {
-        val context = """
+        val input = """
              | 
             ---
              x  
-        """.trimIndent()
+            """.trimIndent()
 
-        val path = processHorizontalTile(Map(context), listOf(Position(1, 1), Position(1, 1)), Direction.Down)
+        val path = processHorizontalTile(Map(input), listOf(Position(1, 1), Position(1, 1)), Direction.Down)
 
         Assertions.assertTrue(path.isValid)
     }
@@ -94,53 +92,106 @@ internal class SolverTests {
 
     @Test
     fun `processVerticalTile supports simple path`() {
-        val context = """
-            -+   
-             |
-             x    
-        """.trimIndent()
+        val input = """
+            |
+            x    
+            """.trimIndent()
 
-        val path = processVerticalTile(Map(context), listOf(Position(1, 1)), Direction.Down)
+        val path = processVerticalTile(Map(input), listOf(Position(0, 0)), Direction.Down)
 
         Assertions.assertTrue(path.isValid)
     }
 
     @Test
     fun `processVerticalTile supports intersections`() {
-        val context = """
+        val input = """
              |
             -|x
              | 
         """.trimIndent()
 
-        val path = processVerticalTile(Map(context), listOf(Position(1, 1), Position(1, 1)), Direction.Right)
+        val path = processVerticalTile(Map(input), listOf(Position(1, 1), Position(1, 1)), Direction.Right)
 
         Assertions.assertTrue(path.isValid)
     }
 
     @Test
     fun `processCornerTile supports basic case`() {
-        val context = """
+        val input = """
              x
             -+
-            
-        """.trimIndent()
+            """.trimIndent()
 
-        val path = processCornerTile(Map(context), listOf(Position(1, 1)), Direction.Right)
+        val path = processCornerTile(Map(input), listOf(Position(1, 1)), Direction.Right)
 
         Assertions.assertTrue(path.isValid)
     }
 
     @Test
     fun `processCornerTile supports basic case 2`() {
-        val context = """
+        val input = """
              |
             x+
-             
-        """.trimIndent()
+            """.trimIndent()
 
-        val path = processCornerTile(Map(context), listOf(Position(1, 1)), Direction.Down)
+        val path = processCornerTile(Map(input), listOf(Position(1, 1)), Direction.Down)
 
         Assertions.assertTrue(path.isValid)
+    }
+
+    @Test
+    fun `processLetterTile supports horizontal traversal`() {
+        val input = """
+            | 
+            +Ax
+            """.trimIndent()
+
+        val path = processLetterTile(Map(input), listOf(Position(1, 1)), Direction.Right)
+
+        Assertions.assertTrue(path.isValid)
+    }
+
+    @Test
+    fun `processLetterTile supports vertical traversal`() {
+        val input = """
+            -+ 
+             A
+             x
+            """.trimIndent()
+
+        val path = processLetterTile(Map(input), listOf(Position(1, 1)), Direction.Down)
+
+        Assertions.assertTrue(path.isValid)
+    }
+
+    @Test
+    fun `processLetterTile supports turn traversal`() {
+        val input = """
+            -+
+             Ax
+            """.trimIndent()
+
+        val path = processLetterTile(Map(input), listOf(Position(1, 1)), Direction.Down)
+
+        Assertions.assertTrue(path.isValid)
+    }
+
+    @Test
+    fun `processLetterTile supports intersection traversal`() {
+        val input = """
+             +-+
+             | |          
+            -A-+
+             x
+            """.trimIndent()
+
+        val path = processLetterTile(Map(input), listOf(Position(2, 1), Position(2, 1)), Direction.Down)
+
+        Assertions.assertTrue(path.isValid)
+
+
+        val path2 = processLetterTile(Map(input), listOf(Position(2, 1), Position(2, 1)), Direction.Right)
+
+        Assertions.assertTrue(path2.isValid)
     }
 }

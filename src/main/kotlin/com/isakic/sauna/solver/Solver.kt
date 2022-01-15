@@ -50,15 +50,11 @@ fun parsePathInDirection(map: Map, path: Path, currentDirection: Direction): Pat
     }
 }
 
-/**
- * Returns the [Position] of the start tile, represented by '@' symbol, if there is exactly one such tile on the map,
- * `null` otherwise.
- */
-fun findStartPosition(map: Map): Position? {
+fun findTile(map: Map, symbol: Char): Position? {
     var position: Position? = null
     for (row in 0 until map.height) {
         for (col in 0 until map.width ) {
-            if (map[row, col] == '@') {
+            if (map[row, col] == symbol) {
                 if (position != null) {
                     return null
                 } else {
@@ -69,6 +65,12 @@ fun findStartPosition(map: Map): Position? {
     }
     return position
 }
+
+/**
+ * Returns the [Position] of the start tile, represented by '@' symbol, if there is exactly one such tile on the map,
+ * `null` otherwise.
+ */
+fun findStartPosition(map: Map) = findTile(map, '@')
 
 /**
  * Starts the parsing process by scanning for paths in all directions starting at the detected starting tile represented
