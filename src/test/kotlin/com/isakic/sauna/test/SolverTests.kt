@@ -14,11 +14,11 @@ internal class SolverTests {
             .go(Direction.Left)
             .go(Direction.Up)
 
-        Assertions.assertFalse(revisitingCurrentPosition(path))
+        Assertions.assertFalse(path.isRevisitingCurrentPosition)
 
         val updatedPath = path.go(Direction.Up)
 
-        Assertions.assertTrue(revisitingCurrentPosition(updatedPath))
+        Assertions.assertTrue(updatedPath.isRevisitingCurrentPosition)
     }
 
     @Test

@@ -69,6 +69,9 @@ fun processVerticalTile(map: Map, path: Path, currentDirection: Direction): Path
 }
 
 fun processCornerTile(map: Map, path: Path, currentDirection: Direction): Path {
+    val forbiddenPath = parsePathInDirection(map, path, currentDirection)
+    if (forbiddenPath.isSomePath) return InvalidPath
+
     val allPaths = currentDirection
         .orthogonal
         .map { parsePathInDirection(map, path, it) }

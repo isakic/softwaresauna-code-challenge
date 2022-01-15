@@ -5,6 +5,11 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import kotlin.test.Ignore
 
+/**
+ * Additional cases I've discovered during my analysis. The ignored tests represent nice-to-have features that
+ * wasn't explicitly or implicitly mentioned by the problem statement. These features were skipped due to time
+ * constraints.
+ */
 class ExtraAcceptanceTests {
 
     @Test
@@ -24,9 +29,22 @@ class ExtraAcceptanceTests {
         Assertions.assertNull(actualOutput)
     }
 
+    @Test
+    fun `Map 15 - T forks 2`() {
+        val input = """
+                 x-B
+                   |
+            @--A---+-C-x
+            """.trimIndent()
+
+        val actualOutput = solve(input)
+
+        Assertions.assertNull(actualOutput)
+    }
+
     @Ignore
     @Test
-    fun `Map 15 - T fork on a letter`() {
+    fun `Map 16 - T fork on a letter`() {
         val input = """
             @-A-x
               |
@@ -40,7 +58,7 @@ class ExtraAcceptanceTests {
 
     @Ignore
     @Test
-    fun `Map 16 - Crossroad on a letter`() {
+    fun `Map 17 - Crossroad on a letter`() {
         val input = """
               +-B-x
               |

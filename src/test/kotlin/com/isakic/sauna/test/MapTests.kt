@@ -50,12 +50,12 @@ class MapTests {
                 Position(0, 0))
 
         val actual = listOf(Position(0, 0))
-                .go(Direction.Right, 2)
                 .go(Direction.Down, 2)
-                .go(Direction.Left)
+                .go(Direction.Right, 2)
                 .go(Direction.Up)
                 .go(Direction.Left)
                 .go(Direction.Up)
+                .go(Direction.Left)
 
         Assertions.assertIterableEquals(expected, actual)
     }
