@@ -41,7 +41,7 @@ val Path.isSomePath
  * The algorithm ensures the current path is never empty and thus never throws. Do not use on [NoPath] constant.
  */
 val Path.currentPosition
-    get() = this.last()
+    get() = last()
 
 /**
  * `true` if the [currentPosition] was previously visited by the path.
@@ -57,6 +57,6 @@ fun Path.go(direction: Direction, distance: Int = 1): Path {
     return if (distance == 0) {
         this
     } else {
-        (this + this.last().go(direction)).go(direction, distance - 1)
+        (this + currentPosition.go(direction)).go(direction, distance - 1)
     }
 }

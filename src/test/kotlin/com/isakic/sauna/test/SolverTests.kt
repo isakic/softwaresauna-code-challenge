@@ -22,7 +22,81 @@ internal class SolverTests {
     }
 
     @Test
-    fun `WIP`() {
+    fun `processHorizontalTile supports simple path`() {
+        val context = """
+                 
+            --x
+                
+        """.trimIndent()
 
+        val path = processHorizontalTile(Map(context, true), listOf(Position(1, 1)), Direction.Right)
+
+        Assertions.assertTrue(path.isValid)
+    }
+
+    @Test
+    fun `processHorizontalTile supports intersections`() {
+        val context = """
+             | 
+            ---
+             x  
+        """.trimIndent()
+
+        val path = processHorizontalTile(Map(context, true), listOf(Position(1, 1), Position(1, 1)), Direction.Down)
+
+        Assertions.assertTrue(path.isValid)
+    }
+
+
+    @Test
+    fun `processVerticalTile supports simple path`() {
+        val context = """
+             |   
+             |
+             x    
+        """.trimIndent()
+
+        val path = processVerticalTile(Map(context, true), listOf(Position(1, 1)), Direction.Down)
+
+        Assertions.assertTrue(path.isValid)
+    }
+
+    @Test
+    fun `processVerticalTile supports intersections`() {
+        val context = """
+             |
+            -|x
+             | 
+        """.trimIndent()
+
+        val path = processVerticalTile(Map(context, true), listOf(Position(1, 1), Position(1, 1)), Direction.Right)
+
+        Assertions.assertTrue(path.isValid)
+    }
+
+    @Test
+    fun `processCornerTile supports basic case`() {
+        val context = """
+             x
+            -+
+            
+        """.trimIndent()
+
+        val path = processCornerTile(Map(context, true), listOf(Position(1, 1)), Direction.Right)
+
+        Assertions.assertTrue(path.isValid)
+    }
+
+    @Test
+    fun `processCornerTile supports basic case 2`() {
+        val context = """
+             |
+            x+
+             
+        """.trimIndent()
+
+        val path = processCornerTile(Map(context, true), listOf(Position(1, 1)), Direction.Down)
+
+        Assertions.assertTrue(path.isValid)
     }
 }
