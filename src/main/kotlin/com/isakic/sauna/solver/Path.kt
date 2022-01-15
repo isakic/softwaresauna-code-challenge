@@ -17,26 +17,39 @@ typealias Path = List<Position>
 val InvalidPath: Path = listOf(Position(0, 0))
 
 /**
- * Constant representing a path with no steps.
+ * Constant representing a path with no steps. This constant is returned when an empty tile,
+ * represented by a ' ' symbol, is encountered.
  */
 val NoPath: Path = listOf()
 
+/**
+ *  `true`, if a path is neither [NoPath] nor [InvalidPath].
+ *  The condition that a path must reach the end tile for it to be valid is enforced implicitly by the algorithm
+ *  (see [processEndTile]).
+ */
 val Path.isValid
     get() = this != NoPath && this != InvalidPath
 
+/**
+ * `true` if the path isn't [NoPath].
+ */
 val Path.isSomePath
     get() = this != NoPath
 
-val Path.isNoPath
-    get() = this == NoPath
-
+/**
+ * Gives the [Position] at the tail end of the path, representing the current location during the parsing process.
+ * The algorithm ensures the current path is never empty and thus never throws. Do not use on [NoPath] constant.
+ */
 val Path.currentPosition
     get() = this.last()
 
+/**
+ * `true` if the [currentPosition] was previously visited by the path.
+ */
 val Path.isRevisitingCurrentPosition get() = count { it == currentPosition } > 1
 
 /**
- * Extends the path by appending the next tile on the map moving by moving one step from the last tile of the path
+ * Extends the path by appending the next position on the map moving by moving one step from the last position
  * in given direction.
  */
 fun Path.go(direction: Direction, distance: Int = 1): Path {

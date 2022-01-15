@@ -23,9 +23,9 @@ enum class Direction(
     val isVertical get() = !isHorizontal
 
     /**
-     * Gets the direction along the same axis with the opposite value.
+     * Gets the opposite direction along the same axis.
      */
-    val opposite
+    val oppositeDirection
         get() = when (this) {
             Up -> Down
             Left -> Right
@@ -36,7 +36,7 @@ enum class Direction(
     /**
      * Gets the directions orthogonal to this direction.
      */
-    val orthogonal
+    val orthogonalDirections
         get() = when (this) {
             Up, Down -> listOf(Left, Right)
             Left, Right -> listOf(Up, Down)
@@ -48,6 +48,9 @@ enum class Direction(
     fun apply(from: Position) = Position(from.row + dRow, from.col + dCol)
 
     companion object {
+        /**
+         * Returns a [List] of all directions.
+         */
         val all = values().toList()
     }
 }

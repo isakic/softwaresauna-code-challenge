@@ -31,7 +31,7 @@ fun ensureSinglePathExists(paths: List<Path>) = ensureSinglePathExists(*paths.to
 
 /**
  * Performs a lookahead from the tail of the current [path] in the given [currentDirection] on the [map] and calls
- * the appropriate tile handler.
+ * the appropriate tile handler. This behavior is the same for all valid tiles.
  *
  * All illegal characters result in this function returning [InvalidPath].
  */
@@ -50,36 +50,69 @@ fun parsePathInDirection(map: Map, path: Path, currentDirection: Direction): Pat
     }
 }
 
+/**
+ * Starts the parsing process by scanning for paths in all directions starting at the detected starting tile represented
+ * by '@' symbol. It allows only one single valid path be present.
+ *
+ * Returns a valid [Path] to the end tile, [InvalidPath] otherwise.
+ */
 fun start(map: Map): Path {
     val startingPath: Path = listOf(map.startPosition)
     val allPaths = Direction.all.map { parsePathInDirection(map, startingPath, it) }
     return ensureSinglePathExists(allPaths)
 }
 
+/**
+ * Processes a horizontal tile, represented by '-' symbol. Returns a valid [Path] if all conditions are met.
+ *
+ * This tile can also be interpreted as a horizontal tile if the [currentDirection] is vertical, representing a path
+ * intersection at a previously visited path. The algorithm assumes that a path revisiting a given tile always goes
+ * *underneath* the previous path.
+ *
+ * Returns [InvalidPath] if there is no valid path going through this tile in the [currentDirection].
+ */
 fun processHorizontalTile(map: Map, path: Path, currentDirection: Direction): Path {
     return if (currentDirection.isHorizontal || path.isRevisitingCurrentPosition) {
         parsePathInDirection(map, path, currentDirection)
     } else InvalidPath
 }
 
+/**
+ * Processes a vertical tile, represented by '|' symbol. Returns a valid [Path] if all conditions are met.
+ *
+ * This tile can also be interpreted as a horizontal tile if the [currentDirection] is horizontal, representing a path
+ * intersection at a previously visited path. The algorithm assumes that a path revisiting a given tile always goes
+ * *underneath* the previous path.
+ *
+ * Returns [InvalidPath] if there is no valid path going through this tile in the [currentDirection].
+ */
 fun processVerticalTile(map: Map, path: Path, currentDirection: Direction): Path {
     return if (currentDirection.isVertical || path.isRevisitingCurrentPosition) {
         parsePathInDirection(map, path, currentDirection)
     } else InvalidPath
 }
 
+/**
+ * Processes a corner tile, represented by '+' symbol. Returns a valid [Path] if all conditions are met.
+ *
+ * Returns [InvalidPath] if there is no single valid path taking a turn at this tile exists. A path going through this
+ * tile in the same direction is not valid and will also return [InvalidPath].
+ */
 fun processCornerTile(map: Map, path: Path, currentDirection: Direction): Path {
     val forbiddenPath = parsePathInDirection(map, path, currentDirection)
     if (forbiddenPath.isSomePath) return InvalidPath
 
     val allPaths = currentDirection
-        .orthogonal
+        .orthogonalDirections
         .map { parsePathInDirection(map, path, it) }
     return ensureSinglePathExists(allPaths)
 }
 
 /**
- * Letter tiles can behave as horizontal, vertical or corner tiles.
+ * Letter tiles can behave as horizontal, vertical or corner tiles, also allowing for path intersection.
+ *
+ * Problem specification is missing some edge cases which appear to contravene the apparent idea behind the problem
+ * statement. These cases are described in extra acceptance test suite but set to be ignored.
  */
 fun processLetterTile(map: Map, path: Path, currentDirection: Direction): Path {
     val hPath = processHorizontalTile(map, path, currentDirection)
@@ -103,7 +136,7 @@ fun processLetterTile(map: Map, path: Path, currentDirection: Direction): Path {
  */
 fun processEndTile(map: Map, path: Path, currentDirection: Direction): Path {
     val continuationPaths = Direction.all
-        .filter { it != currentDirection.opposite }
+        .filter { it != currentDirection.oppositeDirection }
         .map { parsePathInDirection(map, path, it) }
 
     return if (continuationPaths.none { it.isSomePath }) path else InvalidPath
@@ -129,7 +162,7 @@ fun extractLetters(map: Map, path: Path) = path.distinct()
  */
 fun solve(input: String) = try {
     val map = Map(input)
-    val path = start(Map(input))
+    val path = start(map)
 
     if (path.isValid) {
         Output(extractLetters(map, path), extractTiles(map, path))
