@@ -9,15 +9,16 @@ class MapTests {
     @Test
     fun `Map treats out-of-bounds tiles as empty tiles`() {
         val input = """
-                       @---A---+
-                               |
-                       x-B-+   C
-                           |   |
-                           +---+""".trimIndent()
+            @---A---+
+                    |
+            +-B-----C
+            |
+            x
+            """.trimIndent()
         val map = Map(input)
 
-        val samples = listOf(map[-1, 0], map[0, -1], map[-1, -1], map[100, 0], map[0, 100], map[100, 100])
-        val expected = listOf(' ', ' ', ' ', ' ', ' ', ' ')
+        val samples = listOf(map[-1, 0], map[0, -1], map[-1, -1], map[0, 9], map[5, 0], map[5, 9], map[3, 1])
+        val expected = listOf(' ', ' ', ' ', ' ', ' ', ' ', ' ')
 
         Assertions.assertIterableEquals(expected, samples)
     }
@@ -49,18 +50,18 @@ class MapTests {
     @Test
     fun `Path is properly extracted from a walk`() {
         val input = """
-                           +-O-N-+
-                           |     |
-                           |   +-I-+
-                       @-G-O-+ | | |
-                           | | +-+ E
-                           +-+     S
-                                   |
-                                   x
-                    """.trimIndent()
+                +-O-N-+
+                |     |
+                |   +-I-+
+            @-G-O-+ | | |
+                | | +-+ E
+                +-+     S
+                        |
+                        x
+            """.trimIndent()
         val map = Map(input)
 
-        val walk = listOf(Position(3, 0))
+        val path = listOf(Position(3, 0))
                 .go(Direction.Right, 6)
                 .go(Direction.Down, 2)
                 .go(Direction.Left, 2)
@@ -72,7 +73,7 @@ class MapTests {
                 .go(Direction.Right, 4)
                 .go(Direction.Down, 5)
 
-        val actual = extractTiles(map, walk)
+        val actual = extractTiles(map, path)
 
         Assertions.assertEquals("@-G-O-+|+-+|O||+-O-N-+|I|+-+|+-I-+|ES|x", actual)
     }
@@ -80,18 +81,18 @@ class MapTests {
     @Test
     fun `Letters are properly extracted from a walk`() {
         val input = """
-                           +-O-N-+
-                           |     |
-                           |   +-I-+
-                       @-G-O-+ | | |
-                           | | +-+ E
-                           +-+     S
-                                   |
-                                   x
-                    """.trimIndent()
+                +-O-N-+
+                |     |
+                |   +-I-+
+            @-G-O-+ | | |
+                | | +-+ E
+                +-+     S
+                        |
+                        x
+            """.trimIndent()
         val map = Map(input)
 
-        val walk = listOf(Position(3, 0))
+        val path = listOf(Position(3, 0))
                 .go(Direction.Right, 6)
                 .go(Direction.Down, 2)
                 .go(Direction.Left, 2)
@@ -103,7 +104,7 @@ class MapTests {
                 .go(Direction.Right, 4)
                 .go(Direction.Down, 5)
 
-        val actual = extractLetters(map, walk)
+        val actual = extractLetters(map, path)
 
         Assertions.assertEquals("GOONIES", actual)
     }

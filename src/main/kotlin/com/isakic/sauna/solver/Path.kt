@@ -11,10 +11,10 @@ typealias Path = List<Position>
 /**
  * Constant representing a path that doesn't reach the end tile properly.
  *
- * Invalid path can be safely represented by a list containing only one position, as a valid path must contain at least
- * a start and an end tile.
+ * Invalid path can be safely represented by a list containing only one position that is out of bounds, as a start tile
+ * can never be out of bound of the given input.
  */
-val InvalidPath: Path = listOf(Position(0, 0))
+val InvalidPath: Path = listOf(Position(-1, -1))
 
 /**
  * Constant representing a path with no steps. This constant is returned when an empty tile,
@@ -46,7 +46,8 @@ val Path.currentPosition
 /**
  * `true` if the [currentPosition] was previously visited by the path.
  */
-val Path.isRevisitingCurrentPosition get() = count { it == currentPosition } > 1
+val Path.isRevisitingCurrentPosition
+    get() = count { it == currentPosition } > 1
 
 /**
  * Extends the path by appending the next position on the map moving by moving one step from the last position

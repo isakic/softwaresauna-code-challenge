@@ -8,7 +8,7 @@ import kotlin.test.Ignore
 
 /**
  * Additional cases I've discovered during my analysis. The ignored tests represent nice-to-have features that
- * wasn't explicitly or implicitly mentioned by the problem statement. These features were skipped due to time
+ * weren't explicitly or implicitly mentioned by the problem statement. These features were skipped due to time
  * constraints.
  */
 class ExtraAcceptanceTests {
